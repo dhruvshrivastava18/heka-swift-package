@@ -45,3 +45,7 @@ HekaUIView(
 ## Getting the data
 
 The collected data is unified in single format and sent to the webhook url configured while registering the app on our dashboard.
+
+## Sample app
+
+A sample app that uses the Heka widget can be found at [heka-ios-sample](https://github.com/HekaHealth/heka-ios-sample).
