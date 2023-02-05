@@ -11,13 +11,9 @@ The Heka smartwatch integration makes it easy to integrate various watches and r
 
 ## Creating an app on Heka Dashboard
 
-Dashboard
-
-    1. Create an account on our web app at [HekaHealth Dashboard](https://appdev.hekahealth.co).
-
-    2. Register your application.
-
-    3. Creating an app will provide you with an HekaHealth API Key. This you will require when integrating the HekaHealth SDK on the app side.
+1. Create an account on our web app at [HekaHealth Dashboard](https://appdev.hekahealth.co).
+2. Register your application.
+3. Creating an app will provide you with an HekaHealth API Key. This you will require when integrating the HekaHealth SDK on the app side.
 
 That’s all you need to do on the dashboard side.
 
