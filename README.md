@@ -17,7 +17,7 @@ The Heka smartwatch integration makes it easy to integrate various watches and r
 
 That’s all you need to do on the dashboard side.
 
-## Setting up on app side
+## Setting the app
 
 Step 1: Append the Info.plist with the following 2 entries
 
@@ -28,12 +28,13 @@ Step 1: Append the Info.plist with the following 2 entries
 <string>We will sync your data with the Apple Health app to give you better insights</string>
 ```
 
-Step 2: Open your Flutter project in Xcode by right clicking on the "ios" folder and selecting "Open in Xcode". Next, enable "HealthKit" by adding a capability inside the "Signing & Capabilities" tab of the Runner target's settings. Also make sure to enable the background delivery option.
+Step 2: Open your Flutter project in Xcode by right-clicking on the "ios" folder and selecting "Open in Xcode". Next, enable "HealthKit" by adding a capability inside the "Signing & Capabilities" tab of the Runner target's settings. Also, make sure to enable the background delivery option.
+
+Step 3: Add this package under Project -> Package dependencies in your Xcode project.
 
 ## Usage
 
-Add this package as dependencies in your Xcode project. The following lines of code will be enough
-to render the UI component with state management and syncing logic plugged in.
+The following lines of code will be enough to render the UI component with state management and syncing logic plugged in.
 
 ```swift
 HekaUIView(
@@ -44,7 +45,7 @@ HekaUIView(
 
 ## Getting the data
 
-The collected data is unified in single format and sent to the webhook url configured while registering the app on our dashboard.
+The data is unified in a single format and sent to the webhook URL configured while registering the app on our dashboard.
 
 ## Sample app
 
