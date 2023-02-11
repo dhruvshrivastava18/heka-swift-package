@@ -11,6 +11,12 @@ class HekaManager {
     return healthStore.checkHealthKitPermissions()
   }
 
+  func stopSyncing() -> Bool {
+    // TODO: we need to mark the connection as logged out too
+    healthStore.stopObserverQuery()
+    return true
+  }
+
   func syncIosHealthData(apiKey: String, userUuid: String, completion: @escaping (Bool) -> Void) {
     healthStore.requestAuthorization { success in
       if success {
