@@ -7,7 +7,7 @@
 
 import Alamofire
 import Foundation
-import SwiftyJSON
+import UIKit
 
 class APIManager {
 
@@ -41,18 +41,31 @@ class APIManager {
       do {
         let json = try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
         let data = json["data"] as! [String: Any]
-        let id = data["id"] as! Int
         let userUuid = data["user_uuid"] as! String
-        let connectedPlatformsArray = data["connected_platforms"] as! [[String: Any]]
-        let connectedPlatforms = connectedPlatformsArray.map { platformData -> ConnectedPlatform in
-          let platform = platformData["platform_name"] as! String
-          let loggedIn = platformData["logged_in"] as! Bool
+
+        guard let connections = data["connections"] as? [String: [String: Any]?] else {
+          // Handle error if the "connections" key is not found in the response
+          return
+        }
+        var connectedPlatforms = [String: ConnectedPlatform]()
+        for (platformName, platformData) in connections {
+          if platformData == nil {
+            connectedPlatforms[platformName] = nil
+            continue
+          }
+          let platformData = platformData!
+          let platform = platformData["platform_name"] as? String ?? ""
+          let loggedIn = platformData["logged_in"] as? Bool ?? false
           let lastSync = platformData["last_sync"] as? String
-          return ConnectedPlatform(platform: platform, loggedIn: loggedIn, lastSync: lastSync)
+          let connectedDeviceUUIDs = platformData["connected_device_uuids"] as? [String]
+
+          let connectedPlatform = ConnectedPlatform(
+            platform: platform, loggedIn: loggedIn, lastSync: lastSync,
+            connectedDeviceUUIDs: connectedDeviceUUIDs)
+          connectedPlatforms[platformName] = connectedPlatform
         }
 
-        let connection = Connection(
-          id: id, userUuid: userUuid, connectedPlatforms: connectedPlatforms)
+        let connection = Connection(userUuid: userUuid, connectedPlatforms: connectedPlatforms)
         completion(connection)
       } catch {
         print("Error parsing JSON data: \(error)")
@@ -71,57 +84,138 @@ class APIManager {
       URLQueryItem(name: "user_uuid", value: userUuid),
     ]
 
+    let deviceId = UIDevice.current.identifierForVendor!.uuidString
     var components = URLComponents(string: "\(baseURL)/connect_platform_for_user")!
     components.queryItems = queryItems
     AF.request(
       components.url!,
       method: .post,
       parameters: [
-        "key": apiKey,
-        "user_uuid": userUuid,
         "refresh_token": googleFitRefreshToken,
         "email": emailId,
         "platform": platform,
+        "device_id": deviceId,
       ],
       encoding: JSONEncoding.default
     )
-    .responseJSON { response in
-      switch response.result {
-      case let .success(value):
-        let json = JSON(value)
-        if let data = json["data"].dictionary,
-          let id = data["id"]?.int,
-          let userUuid = data["user_uuid"]?.string,
-          let connectedPlatforms = data["connected_platforms"]?.array
-        {
-          let connection = Connection(
-            id: id,
-            userUuid: userUuid,
-            connectedPlatforms: connectedPlatforms.compactMap { platformJSON in
-              guard let platformDict = platformJSON.dictionary,
-                let platform = platformDict["platform"]?.string,
-                let loggedIn = platformDict["logged_in"]?.bool,
-                let lastSync = platformDict["last_sync"]?.string
-              else {
-                return nil
-              }
-              return ConnectedPlatform(
-                platform: platform,
-                loggedIn: loggedIn,
-                lastSync: lastSync
-              )
-            }
-          )
-          completion(.success(connection))
-        } else {
-          // TODO: do something here
-          // completion(.failure())
+    .responseJSON { result in
+      if let response = result.response, response.statusCode == 404 {
+        // TODO: improve this error handling
+        completion(
+          .failure(NSError(domain: "com.heka", code: 404, userInfo: nil)))
+        return
+      }
+      guard let data = result.data, result.error == nil else {
+        completion(
+          .failure(NSError(domain: "com.heka", code: 404, userInfo: nil)))
+        return
+      }
+
+      do {
+        let json = try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
+        let data = json["data"] as! [String: Any]
+        let userUuid = data["user_uuid"] as! String
+
+        guard let connections = data["connections"] as? [String: [String: Any]?] else {
+          // Handle error if the "connections" key is not found in the response
+          return
         }
-      case let .failure(error):
+        var connectedPlatforms = [String: ConnectedPlatform]()
+        for (platformName, platformData) in connections {
+          if platformData == nil {
+            connectedPlatforms[platformName] = nil
+            continue
+          }
+          let platformData = platformData!
+          let platform = platformData["platform_name"] as? String ?? ""
+          let loggedIn = platformData["logged_in"] as? Bool ?? false
+          let lastSync = platformData["last_sync"] as? String
+          let connectedDeviceUUIDs = platformData["connected_device_uuids"] as? [String]
+
+          let connectedPlatform = ConnectedPlatform(
+            platform: platform, loggedIn: loggedIn, lastSync: lastSync,
+            connectedDeviceUUIDs: connectedDeviceUUIDs)
+          connectedPlatforms[platformName] = connectedPlatform
+        }
+
+        let connection = Connection(userUuid: userUuid, connectedPlatforms: connectedPlatforms)
+        completion(.success(connection))
+      } catch {
+        print("Error parsing JSON data: \(error)")
         completion(.failure(error))
       }
     }
 
   }
 
+  func disconnect(
+    userUuid: String, platform: String,
+    completion: @escaping (Result<Connection, Error>) -> Void
+  ) {
+    let queryItems = [
+      URLQueryItem(name: "key", value: apiKey),
+      URLQueryItem(name: "user_uuid", value: userUuid),
+      URLQueryItem(name: "disconnect", value: String(true)),
+    ]
+
+    let deviceId = UIDevice.current.identifierForVendor!.uuidString
+    var components = URLComponents(string: "\(baseURL)/connect_platform_for_user")!
+    components.queryItems = queryItems
+    AF.request(
+      components.url!,
+      method: .post,
+      parameters: [
+        "platform": platform,
+        "device_id": deviceId,
+      ],
+      encoding: JSONEncoding.default
+    )
+    .responseJSON { result in
+      if let response = result.response, response.statusCode == 404 {
+        completion(
+          .failure(NSError(domain: "com.heka", code: 404, userInfo: nil)))
+        return
+      }
+      guard let data = result.data, result.error == nil else {
+        completion(
+          .failure(NSError(domain: "com.heka", code: 404, userInfo: nil)))
+        return
+      }
+
+      do {
+        let json = try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
+        let data = json["data"] as! [String: Any]
+        let userUuid = data["user_uuid"] as! String
+
+        guard let connections = data["connections"] as? [String: [String: Any]?] else {
+          // Handle error if the "connections" key is not found in the response
+          return
+        }
+        var connectedPlatforms = [String: ConnectedPlatform]()
+        for (platformName, platformData) in connections {
+          if platformData == nil {
+            connectedPlatforms[platformName] = nil
+            continue
+          }
+          let platformData = platformData!
+          let platform = platformData["platform_name"] as? String ?? ""
+          let loggedIn = platformData["logged_in"] as? Bool ?? false
+          let lastSync = platformData["last_sync"] as? String
+          let connectedDeviceUUIDs = platformData["connected_device_uuids"] as? [String]
+
+          let connectedPlatform = ConnectedPlatform(
+            platform: platform, loggedIn: loggedIn, lastSync: lastSync,
+            connectedDeviceUUIDs: connectedDeviceUUIDs)
+          connectedPlatforms[platformName] = connectedPlatform
+        }
+
+        let connection = Connection(userUuid: userUuid, connectedPlatforms: connectedPlatforms)
+        completion(.success(connection))
+      } catch {
+        print("Error parsing JSON data: \(error)")
+        completion(.failure(error))
+      }
+    }
+
+  }
 }

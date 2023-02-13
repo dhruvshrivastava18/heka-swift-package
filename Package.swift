@@ -14,7 +14,6 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.6.1")),
-    .package(url: "https://github.com/SwiftyJSON/SwiftyJSON.git", from: "5.0.0"),
     .package(url: "https://github.com/mxcl/PromiseKit", from: "6.8.0"),
   ],
   targets: [
@@ -22,7 +21,7 @@ let package = Package(
     // Targets can depend on other targets in this package, and on products in packages this package depends on.
     .target(
       name: "heka",
-      dependencies: ["Alamofire", "PromiseKit", "SwiftyJSON"],
+      dependencies: ["Alamofire", "PromiseKit"],
       path: "Sources"
     ),
     .testTarget(

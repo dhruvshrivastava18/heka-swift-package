@@ -11,19 +11,18 @@ struct ConnectedPlatform {
   let platform: String
   let loggedIn: Bool
   let lastSync: String?
+  let connectedDeviceUUIDs: [String]?
 }
 
 struct Connection {
-  let id: Int
   let userUuid: String
-  let connectedPlatforms: [ConnectedPlatform]
+  let connectedPlatforms: [String: ConnectedPlatform]
 
   func isPlatformConnected(platform: String) -> Bool {
-    for connectedPlatform in connectedPlatforms {
-      if connectedPlatform.platform == platform {
-        return true
-      }
+    if let connectedPlatform = connectedPlatforms[platform] {
+      return connectedPlatform.loggedIn
+    } else {
+      return false
     }
-    return false
   }
 }
