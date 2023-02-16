@@ -120,6 +120,8 @@ class HealthStore {
   let HEADACHE_MODERATE = "HEADACHE_MODERATE"
   let HEADACHE_SEVERE = "HEADACHE_SEVERE"
 
+  private let firstUploadKeychainHelper = FirstUploadKeychainHelper()
+  
   init() {
     if HKHealthStore.isHealthDataAvailable() {
       healthStore = HKHealthStore()
@@ -408,8 +410,6 @@ class HealthStore {
           samples in
 
           if !samples.isEmpty {
-            let defaults = UserDefaults.standard
-            defaults.set(Date(), forKey: "lastSyncTime")
 
             let url = URL(
               string:
@@ -429,11 +429,11 @@ class HealthStore {
                 print("Error: \(error)")
                 return
               }
-
+              self.firstUploadKeychainHelper.markFirstUpload()
               let responseBody = String(data: data!, encoding: .utf8)
 
               print("___Printing Response body_____")
-              print(responseBody)
+              print(responseBody ?? "Invalid response")
             }
 
             task.resume()
@@ -492,7 +492,8 @@ class HealthStore {
   func getDataFromType(dataTypeKey: String, completion: @escaping ([NSDictionary]) -> Void) {
     let dataType = dataTypesDict[dataTypeKey]
     var predicate: NSPredicate? = nil
-    if let lastSync = UserDefaults.standard.object(forKey: "lastSyncTime") as? Date {
+    
+    if let lastSync = firstUploadKeychainHelper.lastSyncDate {
       predicate = HKQuery.predicateForSamples(
         withStart: lastSync, end: Date(), options: .strictStartDate)
     } else {
