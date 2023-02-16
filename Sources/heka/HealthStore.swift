@@ -424,6 +424,11 @@ class HealthStore {
             let parameters: [String: Any] = samples
             request.httpBody = try? JSONSerialization.data(withJSONObject: parameters)
 
+            let prettyParameters = String(
+              data: try! JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted),
+              encoding: .utf8
+            )!
+            
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
               if let error = error {
                 print("Error: \(error)")
