@@ -428,7 +428,7 @@ class HealthStore {
               data: try! JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted),
               encoding: .utf8
             )!
-            
+            print(prettyParameters)
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
               if let error = error {
                 print("Error: \(error)")
