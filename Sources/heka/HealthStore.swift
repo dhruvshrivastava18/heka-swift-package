@@ -504,7 +504,7 @@ class HealthStore {
     }
 
     let q = HKSampleQuery(
-      sampleType: dataType!, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil
+      sampleType: dataType!, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: nil
     ) {
       x, samplesOrNil, error in
 
