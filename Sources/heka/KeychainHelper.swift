@@ -10,7 +10,13 @@ import UIKit
 
 final class FirstUploadKeychainHelper {
   
-  private var keychainFirstUploadKey = Bundle.main.bundlePath.lowercased() + "firstUploadSuccessfull"
+  private var keychainFirstUploadKey: String {
+    if let bundleIdentifier = Bundle.main.bundleIdentifier {
+      return bundleIdentifier + "firstUploadSuccessfull"
+    } else {
+      return "firstUploadSuccessfull"
+    }
+  }
   
   func markFirstUpload() {
     _ = save(key: keychainFirstUploadKey, data: Data(from: Date().timeIntervalSince1970))
