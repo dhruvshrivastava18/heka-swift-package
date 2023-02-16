@@ -12,7 +12,7 @@ final class FirstUploadKeychainHelper {
   
   private var keychainFirstUploadKey: String {
     if let bundleIdentifier = Bundle.main.bundleIdentifier {
-      return bundleIdentifier + "firstUploadSuccessfull"
+      return bundleIdentifier + ".firstUploadSuccessfull"
     } else {
       return "firstUploadSuccessfull"
     }
