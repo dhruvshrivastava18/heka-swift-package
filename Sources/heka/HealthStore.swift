@@ -121,6 +121,7 @@ class HealthStore {
   let HEADACHE_SEVERE = "HEADACHE_SEVERE"
 
   private let firstUploadKeychainHelper = FirstUploadKeychainHelper()
+  private var apiManager: APIManager?
   
   init() {
     if HKHealthStore.isHealthDataAvailable() {
@@ -406,51 +407,29 @@ class HealthStore {
             self.BODY_TEMPERATURE, self.HEIGHT, self.WEIGHT, self.BODY_MASS_INDEX, self.WATER,
             self.BODY_FAT_PERCENTAGE,
           ])
-        }.done {
-          samples in
-
+        }.done { samples in
+          
           if !samples.isEmpty {
-
-            let url = URL(
-              string:
-                "https://apidev.hekahealth.co/watch_sdk/upload_health_data?key=\(apiKey)&user_uuid=\(userUuid)&data_source=sdk_healthkit"
-            )!
-            var request = URLRequest(url: url)
-            request.allHTTPHeaderFields = [
-              "Content-Type": "application/json"
-            ]
-            request.httpMethod = "POST"
-
-            let parameters: [String: Any] = samples
-            request.httpBody = try? JSONSerialization.data(withJSONObject: parameters)
-
-            let prettyParameters = String(
-              data: try! JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted),
-              encoding: .utf8
-            )!
-            print(prettyParameters)
-            let task = URLSession.shared.dataTask(with: request) { data, response, error in
-              if let error = error {
-                print("Error: \(error)")
-                return
+            self.apiManager = APIManager(apiKey: apiKey)
+            self.apiManager?.syncUserData(
+              with: samples,
+              and: userUuid
+            ) { syncSuccessful in
+              switch syncSuccessful {
+                case true:
+                  self.firstUploadKeychainHelper.markFirstUpload()
+                  print("Data synced successfully")
+                case false:
+                  print("Data synced failed")
               }
-              self.firstUploadKeychainHelper.markFirstUpload()
-              let responseBody = String(data: data!, encoding: .utf8)
-
-              print("___Printing Response body_____")
-              print(responseBody ?? "Invalid response")
+              completionHandler()
             }
-
-            task.resume()
           }
+          
         }
-
-        // Upload data to server
-
       }
 
       self.healthStore!.execute(query)
-      completionHandler()
     }
 
     healthStore!.execute(obsQuery!)
