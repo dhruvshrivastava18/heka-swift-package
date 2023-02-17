@@ -477,18 +477,18 @@ class HealthStore {
     let dataType = dataTypesDict[dataTypeKey]
     var predicate: NSPredicate? = nil
     
-    if let lastSync = firstUploadKeychainHelper.lastSyncDate {
-      predicate = HKQuery.predicateForSamples(
-        withStart: lastSync, end: Date(), options: .strictStartDate)
-    } else {
+//    if let lastSync = firstUploadKeychainHelper.lastSyncDate {
+//      predicate = HKQuery.predicateForSamples(
+//        withStart: lastSync, end: Date(), options: .strictStartDate)
+//    } else {
       let today = Date()
       let start = Calendar.current.date(byAdding: .day, value: -120, to: today)!
       predicate = HKQuery.predicateForSamples(
         withStart: start, end: today, options: .strictStartDate)
-    }
+//    }
 
     let q = HKSampleQuery(
-      sampleType: dataType!, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: nil
+      sampleType: dataType!, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil
     ) {
       x, samplesOrNil, error in
 
