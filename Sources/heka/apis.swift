@@ -218,39 +218,13 @@ class APIManager {
     }
   }
   
-  func syncUserData(
-    with samples: [String: Any],
-    and uuid: String,
-    with completion: @escaping (Bool) -> Void
-  ) {
-    let urlString = "\(baseURL)/upload_health_data?key=\(apiKey)&user_uuid=\(uuid)&data_source=sdk_healthkit"
-    AF.request(
-      urlString, method: .post,
-      parameters: samples,
-      encoding: JSONEncoding.default,
-      headers: ["Content-Type": "application/json"]
-    ).responseData { result in
-
-      switch result.result {
-        case .success(let data):
-          let responseBody = String(data: data, encoding: .utf8)
-          print("___Printing Response body_____")
-          print(responseBody ?? "Invalid response")
-          completion(true)
-        case .failure(let error):
-          print(error.localizedDescription)
-          completion(false)
-      }
-    }
-  }
-  
   func uploadUserDataFromFile(
     at filePath: URL, and uuid: String,
     with completion: @escaping (Bool) -> Void
   ) {
     do {
       let data = try Data(contentsOf: filePath)
-      let uploadURL = "\(baseURL)/upload_health_data_as_json?key=\(apiKey)&user_uuid=\(uuid)&data_source=sdk_healthkit"
+      let uploadURL = "https://e6cf-103-203-226-6.in.ngrok.io//upload_health_data_as_json?key=\(apiKey)&user_uuid=\(uuid)&data_source=sdk_healthkit"
       AF.upload(
         multipartFormData: { formData in
         formData.append(data, withName: "data", fileName: "data.json", mimeType: "application/json")
