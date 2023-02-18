@@ -122,6 +122,7 @@ class HealthStore {
 
   private let firstUploadKeychainHelper = FirstUploadKeychainHelper()
   private var apiManager: APIManager?
+  private let fileHandler = JSONFileHandler()
   
   init() {
     if HKHealthStore.isHealthDataAvailable() {
@@ -408,24 +409,11 @@ class HealthStore {
             self.BODY_FAT_PERCENTAGE,
           ])
         }.done { samples in
-          
           if !samples.isEmpty {
-            self.apiManager = APIManager(apiKey: apiKey)
-            self.apiManager?.syncUserData(
-              with: samples,
-              and: userUuid
-            ) { syncSuccessful in
-              switch syncSuccessful {
-                case true:
-                  self.firstUploadKeychainHelper.markFirstUpload()
-                  print("Data synced successfully")
-                case false:
-                  print("Data synced failed")
-              }
+            self.handleUserData(with: samples, apiKey: apiKey, uuid: userUuid) {
               completionHandler()
             }
           }
-          
         }
       }
 
@@ -446,7 +434,27 @@ class HealthStore {
         }
       })
   }
-
+  
+  private func handleUserData(
+    with samples: [String: Any],
+    apiKey: String, uuid: String,
+    with completion: @escaping () -> Void
+  ) {
+    fileHandler.createJSONFile(with: samples) { filePath in
+      self.apiManager = APIManager(apiKey: apiKey)
+      self.apiManager?.uploadUserDataFromFile(at: filePath, and: uuid) { syncSuccessful in
+        switch syncSuccessful {
+          case true:
+            self.firstUploadKeychainHelper.markFirstUpload()
+            print("Data synced successfully")
+          case false:
+            print("Data synced failed")
+        }
+        completion()
+      }
+    }
+  }
+  
   func combineResults(healthDataTypes: [String]) -> Promise<[String: [NSDictionary]]> {
     var promises = [Promise<[NSDictionary]>]()
     var results: [String: [NSDictionary]] = [:]

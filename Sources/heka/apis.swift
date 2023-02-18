@@ -243,4 +243,36 @@ class APIManager {
       }
     }
   }
+  
+  func uploadUserDataFromFile(
+    at filePath: URL, and uuid: String,
+    with completion: @escaping (Bool) -> Void
+  ) {
+    do {
+      let data = try Data(contentsOf: filePath)
+      let uploadURL = "\(baseURL)/upload_health_data_as_json?key=\(apiKey)&user_uuid=\(uuid)&data_source=sdk_healthkit"
+      AF.upload(
+        multipartFormData: { formData in
+        formData.append(data, withName: "data", fileName: "data.json", mimeType: "application/json")
+      },
+        to: uploadURL,
+        method: .post,
+        headers: ["Content-Type": "application/json"]
+      ).responseData { result in
+        switch result.result {
+          case .success(let data):
+            let responseBody = String(data: data, encoding: .utf8)
+            print("___Printing Response body_____")
+            print(responseBody ?? "Invalid response")
+            completion(true)
+          case .failure(let error):
+            print(error.localizedDescription)
+            completion(false)
+        }
+      }
+    } catch {
+      print("JSON file not found at: ", filePath, "With Error: ", error)
+      completion(false)
+    }
+  }
 }
