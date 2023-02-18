@@ -27,7 +27,7 @@ final class JSONFileHandler {
     }
     
     guard let filePath = filePath else {
-      print("Cannot loacate the document directory")
+      print("Cannot loacate the file at: ", filePath?.absoluteString ?? "")
       return
     }
     
@@ -36,6 +36,18 @@ final class JSONFileHandler {
       completion(filePath)
     } catch(let error) {
       print("Cannot write data to file with error: ", error)
+    }
+  }
+  
+  func deleteJSONFile() {
+    guard let filePath = filePath else {
+      print("Cannot loacate the file at: ", filePath?.absoluteString ?? "")
+      return
+    }
+    do {
+      try FileManager.default.removeItem(at: filePath)
+    } catch {
+      print("Cannot delete the userdata json file with error: ", error)
     }
   }
 }
