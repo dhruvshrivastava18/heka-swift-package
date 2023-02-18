@@ -224,7 +224,7 @@ class APIManager {
   ) {
     do {
       let data = try Data(contentsOf: filePath)
-      let uploadURL = "https://e6cf-103-203-226-6.in.ngrok.io//upload_health_data_as_json?key=\(apiKey)&user_uuid=\(uuid)&data_source=sdk_healthkit"
+      let uploadURL = "https://e6cf-103-203-226-6.in.ngrok.io/watch_sdk/upload_health_data_as_json?key=\(apiKey)&user_uuid=\(uuid)&data_source=sdk_healthkit"
       AF.upload(
         multipartFormData: { formData in
         formData.append(data, withName: "data", fileName: "data.json", mimeType: "application/json")
