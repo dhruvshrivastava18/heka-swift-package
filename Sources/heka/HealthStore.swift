@@ -121,7 +121,7 @@ class HealthStore {
   let HEADACHE_SEVERE = "HEADACHE_SEVERE"
 
   private let firstUploadKeychainHelper = FirstUploadKeychainHelper()
-  private var apiManager: APIManager?
+  private var uploadClient: FileUploadClinet?
   private let fileHandler = JSONFileHandler()
   
   init() {
@@ -441,18 +441,23 @@ class HealthStore {
     with completion: @escaping () -> Void
   ) {
     fileHandler.createJSONFile(with: samples) { filePath in
-      self.apiManager = APIManager(apiKey: apiKey)
-      self.apiManager?.uploadUserDataFromFile(at: filePath, and: uuid) { syncSuccessful in
-        switch syncSuccessful {
-          case true:
-            self.firstUploadKeychainHelper.markFirstUpload()
-            print("Data synced successfully")
-          case false:
-            print("Data synced failed")
+      self.uploadClient = FileUploadClinet(
+        apiKey: apiKey, userUUID: uuid
+      )
+      
+      self.uploadClient?.uploadUserDataFile(
+        from: filePath, with: FileDetails()
+      ) { syncSuccessful in
+          switch syncSuccessful {
+            case true:
+              self.firstUploadKeychainHelper.markFirstUpload()
+              print("Data synced successfully")
+            case false:
+              print("Data synced failed")
+          }
+          self.fileHandler.deleteJSONFile()
+          completion()
         }
-        self.fileHandler.deleteJSONFile()
-        completion()
-      }
     }
   }
   

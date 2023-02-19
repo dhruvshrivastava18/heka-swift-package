@@ -28,9 +28,15 @@ struct ConnectionClient {
     }
   }
   
-  let apiKey: String
-  let userUUID: String
-  let platform: String
+  private let apiKey: String
+  private let userUUID: String
+  private let platform: String
+  
+  init(apiKey: String, userUUID: String, platform: String) {
+    self.apiKey = apiKey
+    self.userUUID = userUUID
+    self.platform = platform
+  }
   
   func fetchConnection(with completion: @escaping ConnectionCompletion) {
     let endpoint = ConnectionEndpoint.fetch(apiKey: apiKey, userUUID: userUUID)
