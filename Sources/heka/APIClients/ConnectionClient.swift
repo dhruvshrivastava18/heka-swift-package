@@ -77,7 +77,7 @@ struct ConnectionClient {
             return
           }
           
-          guard let connections = data["connections"] as? [String: [String: Any]] else {
+          guard let connections = data["connections"] as? [String: [String: Any]?] else {
             completion(.failure(ConnectionError.noConnections))
             return
           }
@@ -85,10 +85,10 @@ struct ConnectionClient {
           var connectedPlatforms = [String: ConnectedPlatform]()
           
           connections.forEach { name, list in
-            let platform = list["platform_name"] as? String ?? ""
-            let loggedIn = list["logged_in"] as? Bool ?? false
-            let lastSync = list["last_sync"] as? String
-            let connectedDeviceUUIDs = list["connected_device_uuids"] as? [String]
+            let platform = list?["platform_name"] as? String ?? ""
+            let loggedIn = list?["logged_in"] as? Bool ?? false
+            let lastSync = list?["last_sync"] as? String
+            let connectedDeviceUUIDs = list?["connected_device_uuids"] as? [String]
             
             let connectedPlatform = ConnectedPlatform(
               platform: platform, loggedIn: loggedIn, lastSync: lastSync,
