@@ -72,4 +72,13 @@ enum ConnectionEndpoint: Endpoint {
         ]
     }
   }
+  
+  var encoding: ParameterEncoding {
+    switch self {
+      case .fetch:
+        return URLEncoding.default
+      case .connect, .disconnect:
+        return JSONEncoding.default
+    }
+  }
 }

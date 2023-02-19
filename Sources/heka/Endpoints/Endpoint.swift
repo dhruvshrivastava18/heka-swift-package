@@ -14,6 +14,7 @@ protocol Endpoint {
   var url: String { get }
   var method: HTTPMethod { get }
   var parameters: Parameters? { get }
+  var encoding: ParameterEncoding { get }
 }
 
   //MARK: - Common Properties and Configurations
