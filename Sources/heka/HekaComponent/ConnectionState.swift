@@ -24,7 +24,11 @@ enum ConnectionState {
   var buttonBGColor: UIColor {
     switch self {
     case .notConnected:
-      return UIColor(named: "connect") ?? .systemOrange
+        return UIColor(
+          named: "connect",
+          in: HekaResources.resourceBundle,
+          compatibleWith: .current
+        ) ?? .systemOrange
     case .syncing:
       return UIColor.lightGray
     case .connected:

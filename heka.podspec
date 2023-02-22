@@ -9,7 +9,11 @@ Pod::Spec.new do |s|
     s.ios.deployment_target = '13.0'
     s.swift_version = '5.0'
     s.source_files = 'Sources/heka/**/*.{swift, plist}'
-    s.resources = 'Sources/heka/**/*.{storyboard,xib,xcassets,json,png}'
     s.dependency 'Alamofire', '~> 5.6.1'
     s.dependency 'PromiseKit', '~> 6.8.0'
+    s.resource_bundles = {
+        'heka_heka' => [
+            'Sources/heka/**/*.{ storyboard,xib,xcassets,json,png }'
+        ]
+    }
   end

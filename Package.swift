@@ -22,7 +22,10 @@ let package = Package(
     .target(
       name: "heka",
       dependencies: ["Alamofire", "PromiseKit"],
-      path: "Sources"
+      path: "Sources",
+      resources: [
+        .process("Resources")
+      ]
     ),
     .testTarget(
       name: "hekaTests",
