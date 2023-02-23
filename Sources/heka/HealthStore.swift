@@ -123,7 +123,7 @@ class HealthStore {
   private let firstUploadKeychainHelper = FirstUploadKeychainHelper()
   private var uploadClient: FileUploadClinet?
   private let fileHandler = JSONFileHandler()
-  
+
   init() {
     if HKHealthStore.isHealthDataAvailable() {
       healthStore = HKHealthStore()
