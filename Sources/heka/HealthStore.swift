@@ -382,6 +382,13 @@ class HealthStore {
     return permissionsGranted
   }
 
+  func stopObserverQuery() {
+    if let query = obsQuery {
+      healthStore?.stop(query)
+    }
+    obsQuery = nil
+  }
+
   func setupStepsObserverQuery(apiKey: String, userUuid: String) {
     let stepCountType = HKObjectType.quantityType(forIdentifier: .stepCount)!
 
