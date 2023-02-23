@@ -395,10 +395,6 @@ class HealthStore {
       (query, completionHandler, errorOrNil) in
 
       // Get steps and upload to server
-      let stepType = HKQuantityType.quantityType(forIdentifier: HKQuantityTypeIdentifier.stepCount)!
-      let anchorDate = Date.mondayAt12AM()
-      let daily = DateComponents(day: 1)
-
       firstly {
         self.combineResults(healthDataTypes: [
           self.STEPS, self.HEART_RATE, self.DISTANCE_WALKING_RUNNING, self.ACTIVE_ENERGY_BURNED,
