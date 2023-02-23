@@ -360,13 +360,12 @@ class HealthStore {
       } else {
         return completion(false)
       }
-      
-      
+
     }
-    
-//    healthStore.requestAuthorization(toShare: [], read: Set(healthDataTypes)) {
-//      (success, error) in completion(success)
-//    }
+
+    //    healthStore.requestAuthorization(toShare: [], read: Set(healthDataTypes)) {
+    //      (success, error) in completion(success)
+    //    }
 
   }
 
@@ -400,29 +399,22 @@ class HealthStore {
       let anchorDate = Date.mondayAt12AM()
       let daily = DateComponents(day: 1)
 
-      let query = HKStatisticsCollectionQuery(
-        quantityType: stepType, quantitySamplePredicate: nil, options: .cumulativeSum,
-        anchorDate: anchorDate, intervalComponents: daily)
-
-      query.initialResultsHandler = { query, statisticsCollection, error in
-
-        firstly {
-          self.combineResults(healthDataTypes: [
-            self.STEPS, self.HEART_RATE, self.DISTANCE_WALKING_RUNNING, self.ACTIVE_ENERGY_BURNED,
-            self.BLOOD_PRESSURE_SYSTOLIC, self.BLOOD_OXYGEN, self.BLOOD_GLUCOSE,
-            self.BODY_TEMPERATURE, self.HEIGHT, self.WEIGHT, self.BODY_MASS_INDEX, self.WATER,
-            self.BODY_FAT_PERCENTAGE,
-          ])
-        }.done { samples in
-          if !samples.isEmpty {
-            self.handleUserData(with: samples, apiKey: apiKey, uuid: userUuid) {
-              completionHandler()
-            }
+      firstly {
+        self.combineResults(healthDataTypes: [
+          self.STEPS, self.HEART_RATE, self.DISTANCE_WALKING_RUNNING, self.ACTIVE_ENERGY_BURNED,
+          self.BLOOD_PRESSURE_SYSTOLIC, self.BLOOD_OXYGEN, self.BLOOD_GLUCOSE,
+          self.BODY_TEMPERATURE, self.HEIGHT, self.WEIGHT, self.BODY_MASS_INDEX, self.WATER,
+          self.BODY_FAT_PERCENTAGE,
+        ])
+      }.done { samples in
+        if !samples.isEmpty {
+          self.handleUserData(with: samples, apiKey: apiKey, uuid: userUuid) {
           }
         }
       }
 
       self.healthStore!.execute(query)
+      completionHandler()
     }
 
     healthStore!.execute(obsQuery!)
@@ -439,7 +431,7 @@ class HealthStore {
         }
       })
   }
-  
+
   private func handleUserData(
     with samples: [String: Any],
     apiKey: String, uuid: String,
@@ -449,23 +441,23 @@ class HealthStore {
       self.uploadClient = FileUploadClinet(
         apiKey: apiKey, userUUID: uuid
       )
-      
+
       self.uploadClient?.uploadUserDataFile(
         from: filePath, with: FileDetails()
       ) { syncSuccessful in
-          switch syncSuccessful {
-            case true:
-              self.firstUploadKeychainHelper.markFirstUpload()
-              print("Data synced successfully")
-            case false:
-              print("Data synced failed")
-          }
-          self.fileHandler.deleteJSONFile()
-          completion()
+        switch syncSuccessful {
+        case true:
+          self.firstUploadKeychainHelper.markFirstUpload()
+          print("Data synced successfully")
+        case false:
+          print("Data synced failed")
         }
+        self.fileHandler.deleteJSONFile()
+        completion()
+      }
     }
   }
-  
+
   func combineResults(healthDataTypes: [String]) -> Promise<[String: [NSDictionary]]> {
     var promises = [Promise<[NSDictionary]>]()
     var results: [String: [NSDictionary]] = [:]
@@ -495,7 +487,7 @@ class HealthStore {
   func getDataFromType(dataTypeKey: String, completion: @escaping ([NSDictionary]) -> Void) {
     let dataType = dataTypesDict[dataTypeKey]
     var predicate: NSPredicate? = nil
-    
+
     if let lastSync = firstUploadKeychainHelper.lastSyncDate {
       predicate = HKQuery.predicateForSamples(
         withStart: lastSync, end: Date(), options: .strictStartDate)
