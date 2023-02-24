@@ -2,8 +2,7 @@
 
 Swift package to integrate with Heka and get data from various fitness and health data sources.
 
-
-Integrate Google Fit, Apple Healthkit and other fitness data sources in your app with just 4 lines of code.
+Integrate Apple Healthkit, Fitbit and other fitness data sources in your app with just 4 lines of code.
 
 Integrating health data from smart watches is not easy and requires understanding how various smart watches and operating systems work. On top of that, the way to get data reliability from different sources is different with data format also being different.
 
@@ -19,7 +18,7 @@ That’s all you need to do on the dashboard side.
 
 ## Setting the app
 
-Step 1: Append the Info.plist with the following 2 entries
+1) Append the `Info.plist` with the following 2 entries
 
 ```xml
 <key>NSHealthShareUsageDescription</key>
@@ -28,9 +27,9 @@ Step 1: Append the Info.plist with the following 2 entries
 <string>We will sync your data with the Apple Health app to give you better insights</string>
 ```
 
-Step 2: Open your Flutter project in Xcode by right-clicking on the "ios" folder and selecting "Open in Xcode". Next, enable "HealthKit" by adding a capability inside the "Signing & Capabilities" tab of the Runner target's settings. Also, make sure to enable the background delivery option.
+2) Open your Flutter project in Xcode by right-clicking on the `ios` folder and selecting `Open in Xcode`. Next, enable `HealthKit` by adding a capability inside the `Signing & Capabilities` tab of the Runner target's settings. Also, make sure to enable the background delivery option.
 
-Step 3: Add this package under Project -> Package dependencies in your Xcode project.
+3) Add this package under `Project` -> `Package dependencies` in your Xcode project.
 
 ## Usage
 
@@ -49,4 +48,11 @@ The data is unified in a single format and sent to the webhook URL configured wh
 
 ## Sample app
 
-A sample app that uses the Heka widget can be found at [heka-ios-sample](https://github.com/HekaHealth/heka-ios-sample).
+A sample app that uses the `HekaUIView` can be found at [heka-ios-sample](https://github.com/HekaHealth/heka-ios-sample).
+
+## FAQs
+
+**Q.** If the user denies Apple Healthkit permission, it doesn't show any error and connects. Shouldn't it prevent connecting and show an error message about permission not granted?
+
+**Ans.** Unfortunately, Apple Healthkit provides no way to detect if a user has granted permission or not due to privacy reasons. The queries that get data from Healthkit don't return an error and rather return an empty list if permissions are not granted.
+We think the best way to handle this is to ask users to make sure permissions are granted from the health app if data is not getting synced.
