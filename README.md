@@ -52,7 +52,7 @@ A sample app that uses the `HekaUIView` can be found at [heka-ios-sample](https:
 
 ## FAQs
 
-**Q.** If the user denies Apple Healthkit permission, it doesn't show any error and connects. Shouldn't it prevent connecting and show an error message about permission not granted?
+**Q.** If the user denies Apple Healthkit permission, it doesn't show any error and connects. Shouldn't it prevent connecting and show an error message about permission not being granted?
 
 **Ans.** Unfortunately, Apple Healthkit provides no way to detect if a user has granted permission or not due to privacy reasons. The queries that get data from Healthkit don't return an error and rather return an empty list if permissions are not granted.
 We think the best way to handle this is to ask users to make sure permissions are granted from the health app if data is not getting synced.
