@@ -408,8 +408,6 @@ class HealthStore {
           }
         }
       }
-
-      self.healthStore!.execute(query)
       completionHandler()
     }
 
