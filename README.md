@@ -16,7 +16,31 @@ The Heka smartwatch integration makes it easy to integrate various watches and r
 
 That’s all you need to do on the dashboard side.
 
-## Setting the app
+## Installation
+
+Heka supports both Cocoapods and Swift Package Manager for dependency management.
+
+#### Cocoapods
+
+With Cocoapods, add the following to your Podfile:
+
+```swift
+pod 'heka'
+```
+
+Then, run `pod install`
+
+#### Swift Package Manager
+
+With Swift Package Manager, add the following `dependency` to your `Package.swift`:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/HekaHealth/heka-swift-package.git", .upToNextMajor(from: "0.0.5"))
+]
+```
+
+## Enabling HealthKit
 
 1) Append the `Info.plist` with the following 2 entries
 
@@ -29,11 +53,14 @@ That’s all you need to do on the dashboard side.
 
 2) Open your Flutter project in Xcode by right-clicking on the `ios` folder and selecting `Open in Xcode`. Next, enable `HealthKit` by adding a capability inside the `Signing & Capabilities` tab of the Runner target's settings. Also, make sure to enable the background delivery option.
 
-3) Add this package under `Project` -> `Package dependencies` in your Xcode project.
 
 ## Usage
 
-The following lines of code will be enough to render the UI component with state management and syncing logic plugged in.
+Import the SDK by adding the following:
+
+    import heka
+
+To render the UI component with state management and syncing logic plugged in, add the following lines:
 
 ```swift
 HekaUIView(
