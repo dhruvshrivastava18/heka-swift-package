@@ -3,6 +3,7 @@ public class HekaManager {
   public init() {}
 
   let healthStore = HealthStore()
+  let keyChainHelper = HekaKeychainHelper()
 
   public func requestAuthorization(completion: @escaping (Bool) -> Void) {
     healthStore.requestAuthorization { success in
@@ -11,8 +12,7 @@ public class HekaManager {
   }
 
   public func stopSyncing() -> Bool {
-    // TODO: we need to mark the connection as logged out too
-    healthStore.stopObserverQuery()
+    keyChainHelper.markDisconnected()
     return true
   }
 
@@ -21,8 +21,8 @@ public class HekaManager {
   ) {
     healthStore.requestAuthorization { success in
       if success {
-        // Setup observer query
-        self.healthStore.setupStepsObserverQuery(apiKey: apiKey, userUuid: userUuid)
+        // TODO: we should pass in last sync date too
+        keyChainHelper.markConnected(apiKey: apiKey, uuid: userUuid)
         completion(true)
       } else {
         completion(false)

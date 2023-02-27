@@ -58,7 +58,7 @@ class HealthStore {
   // Public function to start syncing health data to server
   // This needs to be called in AppDelegate.swift
   public func setupObserverQuery() {
-    if !hekaKeyChainHelper.connected {
+    if !hekaKeyChainHelper.isConnected {
       return
     }
     var userUuid = hekaKeyChainHelper.userUuid
