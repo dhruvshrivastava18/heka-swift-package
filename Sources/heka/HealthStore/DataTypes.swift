@@ -188,7 +188,6 @@ class HealthKitDataTypes {
 
   func initDataTypeToUnit() {
     dataTypeToUnit[ACTIVE_ENERGY_BURNED] = HKUnit.kilocalorie()
-    // dataTypeToUnit[AUDIOGRAM] = HKUnit.decibelHearingLevel()
     dataTypeToUnit[BASAL_ENERGY_BURNED] = HKUnit.kilocalorie()
     dataTypeToUnit[BLOOD_GLUCOSE] = HKUnit.init(from: "mg/dL")
     dataTypeToUnit[BLOOD_OXYGEN] = HKUnit.percent()
@@ -224,11 +223,14 @@ class HealthKitDataTypes {
     dataTypeToUnit[HEADACHE_MODERATE] = HKUnit.minute()
     dataTypeToUnit[HEADACHE_SEVERE] = HKUnit.minute()
     dataTypeToUnit[HEADACHE_UNSPECIFIED] = HKUnit.minute()
-
     dataTypeToUnit[HIGH_HEART_RATE_EVENT] = HKUnit.init(from: "")
     dataTypeToUnit[LOW_HEART_RATE_EVENT] = HKUnit.init(from: "")
     dataTypeToUnit[IRREGULAR_HEART_RATE_EVENT] = HKUnit.init(from: "")
     dataTypeToUnit[HEART_RATE_VARIABILITY_SDNN] = HKUnit.secondUnit(with: .milli)
+
+    if #available(iOS 13.6, *) {
+      dataTypeToUnit[AUDIOGRAM] = HKUnit.decibelHearingLevel()
+    }
   }
 
   func initWorkoutTypes() {
@@ -243,7 +245,6 @@ class HealthKitDataTypes {
     workoutActivityTypeMap["BASEBALL"] = .baseball
     workoutActivityTypeMap["BASKETBALL"] = .basketball
     workoutActivityTypeMap["CRICKET"] = .cricket
-    // workoutActivityTypeMap["DISC_SPORTS"] = .discSports
     workoutActivityTypeMap["HANDBALL"] = .handball
     workoutActivityTypeMap["HOCKEY"] = .hockey
     workoutActivityTypeMap["LACROSSE"] = .lacrosse
@@ -273,7 +274,6 @@ class HealthKitDataTypes {
     workoutActivityTypeMap["STAIR_CLIMBING"] = .stairClimbing
     workoutActivityTypeMap["STAIRS"] = .stairs
     workoutActivityTypeMap["STEP_TRAINING"] = .stepTraining
-    // workoutActivityTypeMap["FITNESS_GAMING"] = .fitnessGaming
     workoutActivityTypeMap["BARRE"] = .barre
     workoutActivityTypeMap["YOGA"] = .yoga
     workoutActivityTypeMap["MIND_AND_BODY"] = .mindAndBody
@@ -314,5 +314,10 @@ class HealthKitDataTypes {
     workoutActivityTypeMap["TAI_CHI"] = .taiChi
     workoutActivityTypeMap["WRESTLING"] = .wrestling
     workoutActivityTypeMap["OTHER"] = .other
+
+    if #available(iOS 13.6, *) {
+      workoutActivityTypeMap["DISC_SPORTS"] = .discSports
+      workoutActivityTypeMap["FITNESS_GAMING"] = .fitnessGaming
+    }
   }
 }
