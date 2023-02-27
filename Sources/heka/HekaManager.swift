@@ -29,4 +29,8 @@ public class HekaManager {
       }
     }
   }
+
+  public func installObservers() {
+    healthStore.setupObserverQuery()
+  }
 }
