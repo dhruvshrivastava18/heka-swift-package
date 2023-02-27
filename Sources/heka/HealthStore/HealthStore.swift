@@ -15,7 +15,7 @@ class HealthStore {
   var obsQuery: HKObserverQuery?
   var healthkitDataTypes: HealthKitDataTypes?
 
-  private let firstUploadKeychainHelper = FirstUploadKeychainHelper()
+  private let hekaKeyChainHelper = HekaKeychainHelper()
   private var uploadClient: FileUploadClinet?
   private let fileHandler = JSONFileHandler()
 
@@ -58,11 +58,11 @@ class HealthStore {
   // Public function to start syncing health data to server
   // This needs to be called in AppDelegate.swift
   public func setupObserverQuery() {
-    if !firstUploadKeychainHelper.connected {
+    if !hekaKeyChainHelper.connected {
       return
     }
-    var userUuid = firstUploadKeychainHelper.userUuid
-    var apiKey = firstUploadKeychainHelper.apiKey
+    var userUuid = hekaKeyChainHelper.userUuid
+    var apiKey = hekaKeyChainHelper.apiKey
     setupStepsObserverQuery(apiKey: apiKey, userUuid: userUuid)
   }
 
@@ -119,7 +119,7 @@ class HealthStore {
       ) { syncSuccessful in
         switch syncSuccessful {
         case true:
-          self.firstUploadKeychainHelper.markFirstUpload()
+          self.hekaKeyChainHelper.markFirstUpload()
           print("Data synced successfully")
         case false:
           print("Data synced failed")
@@ -162,7 +162,7 @@ class HealthStore {
     let dataType = self.healthkitDataTypes.dataTypesDict[dataTypeKey]
     var predicate: NSPredicate? = nil
 
-    if let lastSync = firstUploadKeychainHelper.lastSyncDate {
+    if let lastSync = hekaKeyChainHelper.lastSyncDate {
       predicate = HKQuery.predicateForSamples(
         withStart: lastSync, end: Date(), options: .strictStartDate)
     } else {
