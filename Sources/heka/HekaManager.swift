@@ -22,7 +22,7 @@ public class HekaManager {
     healthStore.requestAuthorization { success in
       if success {
         // TODO: we should pass in last sync date too
-        keyChainHelper.markConnected(apiKey: apiKey, uuid: userUuid)
+        self.keyChainHelper.markConnected(apiKey: apiKey, uuid: userUuid)
         completion(true)
       } else {
         completion(false)
