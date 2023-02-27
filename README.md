@@ -40,11 +40,11 @@ dependencies: [
 ]
 ```
 
-## Enabling HealthKit
+## Setup
 
-1) Append the `Info.plist` with the following 2 entries
+1) Append the `Info.plist` with the following 2 entries:
 
-```xml
+```swift
 <key>NSHealthShareUsageDescription</key>
 <string>We will sync your data with the Apple Health app to give you better insights</string>
 <key>NSHealthUpdateUsageDescription</key>
@@ -53,12 +53,29 @@ dependencies: [
 
 2) Open your Flutter project in Xcode by right-clicking on the `ios` folder and selecting `Open in Xcode`. Next, enable `HealthKit` by adding a capability inside the `Signing & Capabilities` tab of the Runner target's settings. Also, make sure to enable the background delivery option.
 
+3) To make sure that health data is being synced even while on background, initialize the sync observers in `application:didFinishLaunchingWithOptions` method of `AppDelegate.swift`:
+
+```swift
+import heka     // Make sure you import Heka
+
+// ...
+
+func application(_ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    // ....
+    HekaManager().installObservers()
+    return true
+}
+```
+
 
 ## Usage
 
 Import the SDK by adding the following:
 
-    import heka
+```swift
+import heka
+```
 
 To render the UI component with state management and syncing logic plugged in, add the following lines:
 
