@@ -2,6 +2,8 @@
 //  DataTypes.swift
 //
 
+import HealthKit
+
 class HealthKitDataTypes {
 
   var dataTypesDict: [String: HKSampleType] = [:]
