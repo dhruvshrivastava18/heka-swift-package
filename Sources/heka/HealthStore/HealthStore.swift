@@ -58,11 +58,6 @@ class HealthStore {
   // Public function to start syncing health data to server
   // This needs to be called in AppDelegate.swift
   public func setupObserverQuery() {
-    if !hekaKeyChainHelper.isConnected {
-      return
-    }
-    var userUuid = hekaKeyChainHelper.userUuid
-    var apiKey = hekaKeyChainHelper.apiKey
     setupStepsObserverQuery(apiKey: apiKey, userUuid: userUuid)
   }
 
@@ -71,6 +66,14 @@ class HealthStore {
 
     obsQuery = HKObserverQuery(sampleType: stepCountType, predicate: nil) {
       (query, completionHandler, errorOrNil) in
+
+      // if we are not connected, let's ignore the update
+      if !hekaKeyChainHelper.isConnected {
+        completionHandler()
+        return
+      }
+      var userUuid = hekaKeyChainHelper.userUuid
+      var apiKey = hekaKeyChainHelper.apiKey
 
       // Get steps and upload to server
       firstly {
