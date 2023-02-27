@@ -13,7 +13,7 @@ class HealthStore {
   var healthStore: HKHealthStore?
   var query: HKStatisticsCollectionQuery?
   var obsQuery: HKObserverQuery?
-  var healthkitDataTypes: HealthKitDataTypes?
+  private let healthkitDataTypes = HealthKitDataTypes()
 
   private let hekaKeyChainHelper = HekaKeychainHelper()
   private var uploadClient: FileUploadClinet?
@@ -22,7 +22,6 @@ class HealthStore {
   init() {
     if HKHealthStore.isHealthDataAvailable() {
       healthStore = HKHealthStore()
-      healthkitDataTypes = HealthKitDataTypes()
       healthkitDataTypes.initWorkoutTypes()
       healthkitDataTypes.initDataTypeToUnit()
       healthkitDataTypes.initDataTypesDict()
@@ -58,34 +57,40 @@ class HealthStore {
   // Public function to start syncing health data to server
   // This needs to be called in AppDelegate.swift
   public func setupObserverQuery() {
-    setupStepsObserverQuery(apiKey: apiKey, userUuid: userUuid)
+    setupStepsObserverQuery()
   }
 
-  private func setupStepsObserverQuery(apiKey: String, userUuid: String) {
+  private func setupStepsObserverQuery() {
     let stepCountType = HKObjectType.quantityType(forIdentifier: .stepCount)!
 
     obsQuery = HKObserverQuery(sampleType: stepCountType, predicate: nil) {
       (query, completionHandler, errorOrNil) in
 
       // if we are not connected, let's ignore the update
-      if !hekaKeyChainHelper.isConnected {
+      if !self.hekaKeyChainHelper.isConnected {
         completionHandler()
         return
       }
-      var userUuid = hekaKeyChainHelper.userUuid
-      var apiKey = hekaKeyChainHelper.apiKey
+      let userUuid = self.hekaKeyChainHelper.userUuid
+      let apiKey = self.hekaKeyChainHelper.apiKey
 
       // Get steps and upload to server
       firstly {
         self.combineResults(healthDataTypes: [
-          self.STEPS, self.HEART_RATE, self.DISTANCE_WALKING_RUNNING, self.ACTIVE_ENERGY_BURNED,
-          self.BLOOD_PRESSURE_SYSTOLIC, self.BLOOD_OXYGEN, self.BLOOD_GLUCOSE,
-          self.BODY_TEMPERATURE, self.HEIGHT, self.WEIGHT, self.BODY_MASS_INDEX, self.WATER,
-          self.BODY_FAT_PERCENTAGE,
+          self.healthkitDataTypes.STEPS, self.healthkitDataTypes.HEART_RATE,
+          self.healthkitDataTypes.DISTANCE_WALKING_RUNNING,
+          self.healthkitDataTypes.ACTIVE_ENERGY_BURNED,
+          self.healthkitDataTypes.BLOOD_PRESSURE_SYSTOLIC, self.healthkitDataTypes.BLOOD_OXYGEN,
+          self.healthkitDataTypes.BLOOD_GLUCOSE,
+          self.healthkitDataTypes.BODY_TEMPERATURE, self.healthkitDataTypes.HEIGHT,
+          self.healthkitDataTypes.WEIGHT,
+          self.healthkitDataTypes.BODY_MASS_INDEX,
+          self.healthkitDataTypes.WATER,
+          self.healthkitDataTypes.BODY_FAT_PERCENTAGE,
         ])
       }.done { samples in
         if !samples.isEmpty {
-          self.handleUserData(with: samples, apiKey: apiKey, uuid: userUuid) {
+          self.handleUserData(with: samples, apiKey: apiKey!, uuid: userUuid!) {
           }
         }
       }
