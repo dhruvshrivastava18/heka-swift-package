@@ -66,7 +66,7 @@ class HealthStore {
     setupStepsObserverQuery(apiKey: apiKey, userUuid: userUuid)
   }
 
-  func setupStepsObserverQuery(apiKey: String, userUuid: String) {
+  private func setupStepsObserverQuery(apiKey: String, userUuid: String) {
     let stepCountType = HKObjectType.quantityType(forIdentifier: .stepCount)!
 
     obsQuery = HKObserverQuery(sampleType: stepCountType, predicate: nil) {
