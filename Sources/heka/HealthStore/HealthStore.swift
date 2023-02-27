@@ -55,6 +55,17 @@ class HealthStore {
     obsQuery = nil
   }
 
+  // Public function to start syncing health data to server
+  // This needs to be called in AppDelegate.swift
+  public func setupObserverQuery() {
+    if !firstUploadKeychainHelper.connected {
+      return
+    }
+    var userUuid = firstUploadKeychainHelper.userUuid
+    var apiKey = firstUploadKeychainHelper.apiKey
+    setupStepsObserverQuery(apiKey: apiKey, userUuid: userUuid)
+  }
+
   func setupStepsObserverQuery(apiKey: String, userUuid: String) {
     let stepCountType = HKObjectType.quantityType(forIdentifier: .stepCount)!
 
