@@ -7,6 +7,7 @@
 
 import Foundation
 import HealthKit
+import Logging
 import PromiseKit
 
 class HealthStore {
@@ -18,6 +19,7 @@ class HealthStore {
   private let hekaKeyChainHelper = HekaKeychainHelper()
   private var uploadClient: FileUploadClinet?
   private let fileHandler = JSONFileHandler()
+  let logger = Logger(label: "HealthStore")
 
   init() {
     if HKHealthStore.isHealthDataAvailable() {
@@ -29,6 +31,7 @@ class HealthStore {
   }
 
   func requestAuthorization(completion: @escaping (Bool) -> Void) {
+    logger.info("requesting authorization from healthkit")
     guard let healthStore = self.healthStore else {
       return completion(false)
     }
@@ -48,6 +51,7 @@ class HealthStore {
   }
 
   func stopObserverQuery() {
+    logger.info("stopping healthkit observer query")
     if let query = obsQuery {
       healthStore?.stop(query)
     }
@@ -57,6 +61,7 @@ class HealthStore {
   // Public function to start syncing health data to server
   // This needs to be called in AppDelegate.swift
   public func setupObserverQuery() {
+    logger.info("setting up healthkit observer query (public function)")
     setupStepsObserverQuery()
   }
 
@@ -66,11 +71,15 @@ class HealthStore {
     obsQuery = HKObserverQuery(sampleType: stepCountType, predicate: nil) {
       (query, completionHandler, errorOrNil) in
 
+      logger.info("we are in the observer query callback")
+
       // if we are not connected, let's ignore the update
       if !self.hekaKeyChainHelper.isConnected {
+        logger.info("we are not connected, so ignoring the observer query update")
         completionHandler()
         return
       }
+      logger.info("we are connected, so we will sync the data")
       let userUuid = self.hekaKeyChainHelper.userUuid
       let apiKey = self.hekaKeyChainHelper.apiKey
 
@@ -90,6 +99,7 @@ class HealthStore {
         ])
       }.done { samples in
         if !samples.isEmpty {
+          logger.info("got the samples in the observer query callback, sending them to server")
           self.handleUserData(with: samples, apiKey: apiKey!, uuid: userUuid!) {
           }
         }
@@ -97,7 +107,9 @@ class HealthStore {
       completionHandler()
     }
 
+    logger.info("executing observer query")
     healthStore!.execute(obsQuery!)
+    logger.info("enabling background delivery")
     healthStore!.enableBackgroundDelivery(
       for: stepCountType, frequency: .immediate,
       withCompletion: { (succeeded, error) in
@@ -117,6 +129,7 @@ class HealthStore {
     apiKey: String, uuid: String,
     with completion: @escaping () -> Void
   ) {
+    logger.info("sending user data to server, creating JSON file")
     fileHandler.createJSONFile(with: samples) { filePath in
       self.uploadClient = FileUploadClinet(
         apiKey: apiKey, userUUID: uuid
@@ -128,9 +141,9 @@ class HealthStore {
         switch syncSuccessful {
         case true:
           self.hekaKeyChainHelper.markFirstUpload()
-          print("Data synced successfully")
+          logger.info("Data synced successfully")
         case false:
-          print("Data synced failed")
+          logger.info("Data synced failed")
         }
         self.fileHandler.deleteJSONFile()
         completion()
@@ -139,6 +152,7 @@ class HealthStore {
   }
 
   func combineResults(healthDataTypes: [String]) -> Promise<[String: [NSDictionary]]> {
+    logger.info("fetching data for various data types and combining it")
     var promises = [Promise<[NSDictionary]>]()
     var results: [String: [NSDictionary]] = [:]
 
@@ -167,6 +181,7 @@ class HealthStore {
   }
 
   func getDataFromType(dataTypeKey: String, completion: @escaping ([NSDictionary]) -> Void) {
+    logger.info("getting data for data type: \(dataTypeKey)")
     let dataType = self.healthkitDataTypes.dataTypesDict[dataTypeKey]
     var predicate: NSPredicate? = nil
 

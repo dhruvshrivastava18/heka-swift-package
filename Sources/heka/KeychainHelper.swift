@@ -5,10 +5,13 @@
 //  Created by Gaurav Tiwari on 16/02/23.
 //
 
+import Logging
 import Security
 import UIKit
 
 final class HekaKeychainHelper {
+
+  let logger = Logger(label: "HekaKeychainHelper")
 
   private struct KeychainData: Codable {
     var apiKey: String
@@ -27,12 +30,14 @@ final class HekaKeychainHelper {
 
   private var keychainData: KeychainData? {
     get {
+      logger.info("Getting keychain data")
       guard let data = load(key: keychainKey) else {
         return nil
       }
       return try? JSONDecoder().decode(KeychainData.self, from: data)
     }
     set {
+      logger.info("Setting keychain data")
       guard let data = try? JSONEncoder().encode(newValue) else {
         return
       }
@@ -41,6 +46,7 @@ final class HekaKeychainHelper {
   }
 
   func markFirstUpload() {
+    logger.info("marking first upload in keychain")
     var data =
       keychainData ?? KeychainData(apiKey: "", uuid: "", connected: false, firstUploadDate: nil)
     data.firstUploadDate = Date()
@@ -49,6 +55,7 @@ final class HekaKeychainHelper {
 
   // TODO: add handling of last sync time
   func markConnected(apiKey: String, uuid: String) {
+    logger.info("marking connected in keychain")
     var data =
       keychainData ?? KeychainData(apiKey: "", uuid: "", connected: false, firstUploadDate: nil)
     data.connected = true
@@ -59,6 +66,7 @@ final class HekaKeychainHelper {
 
   // TODO: add handling of last sync time
   func markDisconnected() {
+    logger.info("marking disconnected in keychain")
     var data =
       keychainData ?? KeychainData(apiKey: "", uuid: "", connected: false, firstUploadDate: nil)
     data.connected = false

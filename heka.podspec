@@ -11,6 +11,7 @@ Pod::Spec.new do |s|
     s.source_files = 'Sources/heka/**/*.{swift, plist}'
     s.dependency 'Alamofire', '~> 5.6.1'
     s.dependency 'PromiseKit', '~> 6.8.0'
+    s.dependency 'SwiftLog', '~> 1.0.0'
     s.resource_bundles = {
         'heka_heka' => [
             'Sources/heka/**/*.{ storyboard,xib,xcassets,json,png }'
