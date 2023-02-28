@@ -58,15 +58,15 @@ extension ComponentViewModel {
   func checkConnectionStatus() {
     connectionClient.fetchConnection { result in
       switch result {
-        case .failure(let error):
-          self.errorDescription = error.localizedDescription
+      case .failure(let error):
+        self.errorDescription = error.localizedDescription
+        self.setState(to: .notConnected)
+      case .success(let connection):
+        if connection.isPlatformConnected(platform: "apple_healthkit") {
+          self.setState(to: .connected)
+        } else {
           self.setState(to: .notConnected)
-        case .success(let connection):
-          if connection.isPlatformConnected(platform: "apple_healthkit") {
-            self.setState(to: .connected)
-          } else {
-            self.setState(to: .notConnected)
-          }
+        }
       }
     }
   }
@@ -85,14 +85,15 @@ extension ComponentViewModel {
   func disconnectFromServer() {
     connectionClient.disconnect { result in
       switch result {
-        case .failure(let error):
-          self.errorDescription = error.localizedDescription
-        case .success:
-          self.setState(to: .notConnected)
+      case .failure(let error):
+        self.errorDescription = error.localizedDescription
+      case .success:
+        self.hekaManager.stopSyncing()
+        self.setState(to: .notConnected)
       }
     }
   }
-  
+
   private func syncIosHealthData() {
     self.hekaManager.syncIosHealthData(
       apiKey: self.apiKey, userUuid: self.uuid
@@ -108,14 +109,14 @@ extension ComponentViewModel {
 
   private func makeConnectionRequest() {
     self.setState(to: .syncing)
-    
+
     connectionClient.connectToServer { result in
       switch result {
-        case .success:
-          self.syncIosHealthData()
-        case .failure(let error):
-          self.setState(to: .notConnected)
-          self.errorDescription = error.localizedDescription
+      case .success:
+        self.syncIosHealthData()
+      case .failure(let error):
+        self.setState(to: .notConnected)
+        self.errorDescription = error.localizedDescription
       }
     }
   }
