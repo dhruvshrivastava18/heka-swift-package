@@ -88,7 +88,8 @@ HekaUIView(
 
 ## Getting the data
 
-The data is unified in a single format and sent to the webhook URL configured while registering the app on our dashboard.
+The collected data is unified in a single format and sent to the webhook URL configured while registering the app on our dashboard. Check out our relevant [documentation](https://heka-health.notion.site/Getting-data-on-the-server-Heka-94ae2c8228ad426c9a45f3ac1d7312fe).
+
 
 ## Sample app
 
