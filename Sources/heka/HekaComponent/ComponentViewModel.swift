@@ -64,6 +64,7 @@ extension ComponentViewModel {
       case .success(let connection):
         if connection.isPlatformConnected(platform: "apple_healthkit") {
           self.setState(to: .connected)
+            print(connection)
         } else {
           self.setState(to: .notConnected)
         }
